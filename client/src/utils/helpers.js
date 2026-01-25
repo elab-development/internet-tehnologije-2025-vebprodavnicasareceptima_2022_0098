@@ -48,3 +48,10 @@ export function money(n) {
   const safe = Number.isFinite(x) ? x : 0;
   return safe.toFixed(2);
 }
+
+export function formatDateTime(iso) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return String(iso);
+  return d.toLocaleString();
+}
