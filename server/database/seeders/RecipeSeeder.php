@@ -3,42 +3,39 @@
 namespace Database\Seeders;
 
 use App\Models\Recipe;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class RecipeSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
         $recipes = [
+
             [
                 'name' => 'Greek Salad',
-                'description' => 'Fresh salad with tomato, cucumber, onion, and olive oil.',
-                'ingredient_ids' => [1, 2, 3, 5, 18],
+                'description' => 'Traditional Greek salad with fresh vegetables and olive oil',
             ],
+
             [
                 'name' => 'Spaghetti Bolognese',
-                'description' => 'Classic Italian pasta with beef and tomato sauce.',
-                'ingredient_ids' => [11, 1, 3, 5, 15, 16],
+                'description' => 'Italian pasta with beef and tomato sauce',
             ],
+
             [
-                'name' => 'Chicken Curry',
-                'description' => 'Spicy chicken curry with rice.',
-                'ingredient_ids' => [10, 13, 14, 3, 4],
+                'name' => 'Chicken and Rice',
+                'description' => 'Simple chicken breast with rice and spices',
             ],
+
             [
                 'name' => 'Omelette',
-                'description' => 'Egg omelette with cheese and parsley.',
-                'ingredient_ids' => [8, 6, 17],
+                'description' => 'Egg omelette with cheese and parsley',
             ],
+
             [
                 'name' => 'Mashed Potatoes',
-                'description' => 'Creamy mashed potatoes with butter and milk.',
-                'ingredient_ids' => [12, 9, 19],
+                'description' => 'Creamy mashed potatoes with butter and milk',
             ],
+            
         ];
 
         foreach ($recipes as $recipe) {

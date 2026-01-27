@@ -5,23 +5,25 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Ingredient extends Model
+class OrderItem extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'recipe_id',
+        'order_id',
         'product_id',
-        'quantity'
+        'quantity',
+        'price'
     ];
 
     protected $casts = [
-        'quantity' => 'decimal:2'
+        'quantity' => 'decimal:2',
+        'price' => 'decimal:2'
     ];
 
-    public function recipe()
+    public function order()
     {
-        return $this->belongsTo(Recipe::class);
+        return $this->belongsTo(Order::class);
     }
 
     public function product()

@@ -5,13 +5,14 @@ namespace App\Http\Resources;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class IngredientResource extends JsonResource
+class OrderItemResource extends JsonResource
 {
     public function toArray(Request $request): array
     {
         return [
             'id' => $this->id,
             'quantity' => (float) $this->quantity,
+            'price' => (float) $this->price,
             'product' => new ProductResource($this->whenLoaded('product')),
         ];
     }

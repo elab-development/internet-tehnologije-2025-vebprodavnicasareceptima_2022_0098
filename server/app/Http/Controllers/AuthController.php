@@ -122,6 +122,37 @@ class AuthController extends Controller
     }
 
     /**
+     * @OA\Get(
+     *   path="/api/me",
+     *   tags={"Auth"},
+     *   summary="Get currently authenticated user",
+     *   description="Returns the currently logged in user based on the Sanctum token.",
+     *   security={{"bearerAuth":{}}},
+     *   @OA\Response(
+     *     response=200,
+     *     description="OK",
+     *     @OA\JsonContent(
+     *       type="object",
+     *       @OA\Property(property="user", type="object",
+     *         @OA\Property(property="id", type="integer", example=1),
+     *         @OA\Property(property="name", type="string", example="Jane Doe"),
+     *         @OA\Property(property="email", type="string", example="jane@example.com"),
+     *         @OA\Property(property="role", type="string", example="user")
+     *       )
+     *     )
+     *   ),
+     *   @OA\Response(response=401, description="Unauthenticated")
+     * )
+     */
+    public function me()
+    {
+        return response()->json([
+            'user' => auth()->user(),
+        ]);
+    }
+
+    
+    /**
      * @OA\Post(
      *   path="/api/logout",
      *   tags={"Auth"},

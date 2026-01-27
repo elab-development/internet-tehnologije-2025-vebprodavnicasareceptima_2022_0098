@@ -3,41 +3,138 @@
 namespace Database\Seeders;
 
 use App\Models\Ingredient;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\Product;
+use App\Models\Recipe;
 use Illuminate\Database\Seeder;
 
 class IngredientSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
+        $recipes = Recipe::all()->keyBy('name');
+        $products = Product::all()->keyBy('name');
+
         $ingredients = [
-            ['name' => 'Tomato', 'price' => 1.20],
-            ['name' => 'Cucumber', 'price' => 0.80],
-            ['name' => 'Onion', 'price' => 0.60],
-            ['name' => 'Garlic', 'price' => 0.40],
-            ['name' => 'Olive Oil', 'price' => 5.50],
-            ['name' => 'Cheese', 'price' => 3.20],
-            ['name' => 'Flour', 'price' => 1.00],
-            ['name' => 'Eggs', 'price' => 2.50],
-            ['name' => 'Milk', 'price' => 1.10],
-            ['name' => 'Chicken Breast', 'price' => 6.90],
-            ['name' => 'Beef Steak', 'price' => 12.50],
-            ['name' => 'Potato', 'price' => 0.90],
-            ['name' => 'Carrot', 'price' => 0.70],
-            ['name' => 'Rice', 'price' => 2.30],
-            ['name' => 'Spaghetti', 'price' => 2.00],
-            ['name' => 'Basil', 'price' => 0.50],
-            ['name' => 'Parsley', 'price' => 0.40],
-            ['name' => 'Lettuce', 'price' => 1.30],
-            ['name' => 'Butter', 'price' => 2.10],
-            ['name' => 'Yogurt', 'price' => 1.70],
+
+            // Greek Salad
+            [
+                'recipe' => 'Greek Salad',
+                'product' => 'Tomato',
+                'quantity' => 0.5,
+            ],
+            [
+                'recipe' => 'Greek Salad',
+                'product' => 'Cucumber',
+                'quantity' => 0.3,
+            ],
+            [
+                'recipe' => 'Greek Salad',
+                'product' => 'Onion',
+                'quantity' => 0.1,
+            ],
+            [
+                'recipe' => 'Greek Salad',
+                'product' => 'Olive Oil',
+                'quantity' => 0.05,
+            ],
+            [
+                'recipe' => 'Greek Salad',
+                'product' => 'Cheese',
+                'quantity' => 0.2,
+            ],
+
+            // Spaghetti Bolognese
+            [
+                'recipe' => 'Spaghetti Bolognese',
+                'product' => 'Spaghetti',
+                'quantity' => 0.5,
+            ],
+            [
+                'recipe' => 'Spaghetti Bolognese',
+                'product' => 'Beef Steak',
+                'quantity' => 0.4,
+            ],
+            [
+                'recipe' => 'Spaghetti Bolognese',
+                'product' => 'Tomato',
+                'quantity' => 0.3,
+            ],
+            [
+                'recipe' => 'Spaghetti Bolognese',
+                'product' => 'Onion',
+                'quantity' => 0.1,
+            ],
+            [
+                'recipe' => 'Spaghetti Bolognese',
+                'product' => 'Olive Oil',
+                'quantity' => 0.05,
+            ],
+
+            // Chicken and Rice
+            [
+                'recipe' => 'Chicken and Rice',
+                'product' => 'Chicken Breast',
+                'quantity' => 0.5,
+            ],
+            [
+                'recipe' => 'Chicken and Rice',
+                'product' => 'Rice',
+                'quantity' => 0.4,
+            ],
+            [
+                'recipe' => 'Chicken and Rice',
+                'product' => 'Carrot',
+                'quantity' => 0.2,
+            ],
+            [
+                'recipe' => 'Chicken and Rice',
+                'product' => 'Garlic',
+                'quantity' => 0.05,
+            ],
+
+            // Omelette
+            [
+                'recipe' => 'Omelette',
+                'product' => 'Eggs',
+                'quantity' => 3,
+            ],
+            [
+                'recipe' => 'Omelette',
+                'product' => 'Cheese',
+                'quantity' => 0.2,
+            ],
+            [
+                'recipe' => 'Omelette',
+                'product' => 'Parsley',
+                'quantity' => 0.05,
+            ],
+
+            // Mashed Potatoes
+            [
+                'recipe' => 'Mashed Potatoes',
+                'product' => 'Potato',
+                'quantity' => 0.8,
+            ],
+            [
+                'recipe' => 'Mashed Potatoes',
+                'product' => 'Milk',
+                'quantity' => 0.2,
+            ],
+            [
+                'recipe' => 'Mashed Potatoes',
+                'product' => 'Butter',
+                'quantity' => 0.1,
+            ],
+
         ];
 
-        foreach ($ingredients as $ingredient) {
-            Ingredient::create($ingredient);
+        foreach ($ingredients as $item) {
+
+            Ingredient::create([
+                'recipe_id' => $recipes[$item['recipe']]->id,
+                'product_id' => $products[$item['product']]->id,
+                'quantity' => $item['quantity'],
+            ]);
         }
     }
 }

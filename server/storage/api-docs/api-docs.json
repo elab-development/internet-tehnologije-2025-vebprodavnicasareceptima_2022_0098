@@ -186,6 +186,59 @@
                 }
             }
         },
+        "/api/me": {
+            "get": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Get currently authenticated user",
+                "description": "Returns the currently logged in user based on the Sanctum token.",
+                "operationId": "9d9bc556f927575aa492a88c28fe5908",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "user": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "name": {
+                                                    "type": "string",
+                                                    "example": "Jane Doe"
+                                                },
+                                                "email": {
+                                                    "type": "string",
+                                                    "example": "jane@example.com"
+                                                },
+                                                "role": {
+                                                    "type": "string",
+                                                    "example": "user"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/api/logout": {
             "post": {
                 "tags": [
@@ -381,46 +434,27 @@
                 }
             }
         },
-        "/api/ingredients": {
+        "/api/recipes/{recipe}/ingredients": {
             "get": {
                 "tags": [
                     "Ingredients"
                 ],
-                "summary": "List all ingredients",
-                "operationId": "88554df920fe97e07f179ca559f98b75",
+                "summary": "List ingredients for a recipe",
+                "operationId": "c40cd5b1c2c29ccd7a47b80d97a55631",
+                "parameters": [
+                    {
+                        "name": "recipe",
+                        "in": "path",
+                        "description": "Recipe ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
-                        "description": "OK",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "ingredients": {
-                                            "type": "array",
-                                            "items": {
-                                                "properties": {
-                                                    "id": {
-                                                        "type": "integer",
-                                                        "example": 1
-                                                    },
-                                                    "name": {
-                                                        "type": "string",
-                                                        "example": "Tomato"
-                                                    },
-                                                    "price": {
-                                                        "type": "number",
-                                                        "format": "float",
-                                                        "example": 1.2
-                                                    }
-                                                },
-                                                "type": "object"
-                                            }
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
+                        "description": "OK"
                     },
                     "404": {
                         "description": "No ingredients found."
@@ -431,27 +465,37 @@
                 "tags": [
                     "Ingredients"
                 ],
-                "summary": "Create a new ingredient (admin only)",
-                "operationId": "290f4795ec7faed0d1e88d61aeb935ee",
+                "summary": "Add ingredient to a recipe (admin only)",
+                "operationId": "23a8541f33a4ae37e56588cadfa2243e",
+                "parameters": [
+                    {
+                        "name": "recipe",
+                        "in": "path",
+                        "description": "Recipe ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
                 "requestBody": {
                     "required": true,
                     "content": {
                         "application/json": {
                             "schema": {
                                 "required": [
-                                    "name",
-                                    "price"
+                                    "product_id",
+                                    "quantity"
                                 ],
                                 "properties": {
-                                    "name": {
-                                        "type": "string",
-                                        "maxLength": 255,
-                                        "example": "Olive Oil"
+                                    "product_id": {
+                                        "type": "integer",
+                                        "example": 1
                                     },
-                                    "price": {
+                                    "quantity": {
                                         "type": "number",
                                         "format": "float",
-                                        "example": 5.5
+                                        "example": 0.5
                                     }
                                 },
                                 "type": "object"
@@ -461,41 +505,10 @@
                 },
                 "responses": {
                     "201": {
-                        "description": "Ingredient created",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Ingredient created successfully"
-                                        },
-                                        "ingredient": {
-                                            "properties": {
-                                                "id": {
-                                                    "type": "integer",
-                                                    "example": 20
-                                                },
-                                                "name": {
-                                                    "type": "string",
-                                                    "example": "Olive Oil"
-                                                },
-                                                "price": {
-                                                    "type": "number",
-                                                    "format": "float",
-                                                    "example": 5.5
-                                                }
-                                            },
-                                            "type": "object"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
+                        "description": "Ingredient added"
                     },
                     "403": {
-                        "description": "Only admins can create ingredients"
+                        "description": "Only admins can add ingredients"
                     },
                     "422": {
                         "description": "Validation error"
@@ -509,70 +522,15 @@
             }
         },
         "/api/ingredients/{ingredient}": {
-            "get": {
-                "tags": [
-                    "Ingredients"
-                ],
-                "summary": "Get a single ingredient",
-                "operationId": "b3c6b782bdafd2875731d0f590d60f93",
-                "parameters": [
-                    {
-                        "name": "ingredient",
-                        "in": "path",
-                        "description": "Ingredient ID",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "ingredient": {
-                                            "properties": {
-                                                "id": {
-                                                    "type": "integer",
-                                                    "example": 5
-                                                },
-                                                "name": {
-                                                    "type": "string",
-                                                    "example": "Cheese"
-                                                },
-                                                "price": {
-                                                    "type": "number",
-                                                    "format": "float",
-                                                    "example": 3.2
-                                                }
-                                            },
-                                            "type": "object"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Ingredient not found"
-                    }
-                }
-            }
-        },
-        "/api/ingredients/{id}": {
             "put": {
                 "tags": [
                     "Ingredients"
                 ],
                 "summary": "Update an ingredient (admin only)",
-                "operationId": "b2b705f67b293905971309a7927b3636",
+                "operationId": "be01c11e6c94a5b354f1c07e4e511655",
                 "parameters": [
                     {
-                        "name": "id",
+                        "name": "ingredient",
                         "in": "path",
                         "description": "Ingredient ID",
                         "required": true,
@@ -587,15 +545,14 @@
                         "application/json": {
                             "schema": {
                                 "properties": {
-                                    "name": {
-                                        "type": "string",
-                                        "maxLength": 255,
-                                        "example": "Greek Olive Oil"
+                                    "product_id": {
+                                        "type": "integer",
+                                        "example": 2
                                     },
-                                    "price": {
+                                    "quantity": {
                                         "type": "number",
                                         "format": "float",
-                                        "example": 5.99
+                                        "example": 0.7
                                     }
                                 },
                                 "type": "object"
@@ -605,38 +562,7 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "Ingredient updated",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Ingredient updated successfully"
-                                        },
-                                        "ingredient": {
-                                            "properties": {
-                                                "id": {
-                                                    "type": "integer",
-                                                    "example": 20
-                                                },
-                                                "name": {
-                                                    "type": "string",
-                                                    "example": "Greek Olive Oil"
-                                                },
-                                                "price": {
-                                                    "type": "number",
-                                                    "format": "float",
-                                                    "example": 5.99
-                                                }
-                                            },
-                                            "type": "object"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
+                        "description": "Ingredient updated"
                     },
                     "403": {
                         "description": "Only admins can update ingredients"
@@ -656,10 +582,10 @@
                     "Ingredients"
                 ],
                 "summary": "Delete an ingredient (admin only)",
-                "operationId": "d7a227e0854bd498dfe1c1b9155b4bd0",
+                "operationId": "ee34994a8022f644f24d9f73fdcbab5a",
                 "parameters": [
                     {
-                        "name": "id",
+                        "name": "ingredient",
                         "in": "path",
                         "description": "Ingredient ID",
                         "required": true,
@@ -670,17 +596,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Ingredient deleted",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object"
-                                },
-                                "example": {
-                                    "message": "Ingredient deleted successfully"
-                                }
-                            }
-                        }
+                        "description": "Ingredient deleted"
                     },
                     "403": {
                         "description": "Only admins can delete ingredients"
@@ -702,65 +618,7 @@
                 "operationId": "2cd7e03021e72d9d799c12dfe179c865",
                 "responses": {
                     "200": {
-                        "description": "OK",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "orders": {
-                                            "type": "array",
-                                            "items": {
-                                                "properties": {
-                                                    "id": {
-                                                        "type": "integer",
-                                                        "example": 12
-                                                    },
-                                                    "status": {
-                                                        "type": "string",
-                                                        "example": "pending"
-                                                    },
-                                                    "total_amount": {
-                                                        "type": "number",
-                                                        "format": "float",
-                                                        "example": 12.3
-                                                    },
-                                                    "ingredient_ids": {
-                                                        "type": "array",
-                                                        "items": {
-                                                            "type": "integer"
-                                                        },
-                                                        "example": [
-                                                            1,
-                                                            2,
-                                                            5
-                                                        ]
-                                                    },
-                                                    "user": {
-                                                        "properties": {
-                                                            "id": {
-                                                                "type": "integer",
-                                                                "example": 3
-                                                            },
-                                                            "name": {
-                                                                "type": "string",
-                                                                "example": "Nikola Raičević"
-                                                            },
-                                                            "email": {
-                                                                "type": "string",
-                                                                "example": "nikola@example.com"
-                                                            }
-                                                        },
-                                                        "type": "object"
-                                                    }
-                                                },
-                                                "type": "object"
-                                            }
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
+                        "description": "OK"
                     },
                     "404": {
                         "description": "No orders found."
@@ -776,7 +634,7 @@
                 "tags": [
                     "Orders"
                 ],
-                "summary": "Create an order from ingredient IDs (user only)",
+                "summary": "Create an order from products (user only)",
                 "operationId": "d690d6834318e9b064df441e854de8b9",
                 "requestBody": {
                     "required": true,
@@ -784,19 +642,29 @@
                         "application/json": {
                             "schema": {
                                 "required": [
-                                    "ingredient_ids"
+                                    "items"
                                 ],
                                 "properties": {
-                                    "ingredient_ids": {
+                                    "items": {
                                         "type": "array",
                                         "items": {
-                                            "type": "integer"
-                                        },
-                                        "example": [
-                                            1,
-                                            2,
-                                            5
-                                        ]
+                                            "required": [
+                                                "product_id",
+                                                "quantity"
+                                            ],
+                                            "properties": {
+                                                "product_id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "quantity": {
+                                                    "type": "number",
+                                                    "format": "float",
+                                                    "example": 2
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
                                     }
                                 },
                                 "type": "object"
@@ -806,259 +674,13 @@
                 },
                 "responses": {
                     "201": {
-                        "description": "Order created",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Order created successfully"
-                                        },
-                                        "order": {
-                                            "properties": {
-                                                "id": {
-                                                    "type": "integer",
-                                                    "example": 22
-                                                },
-                                                "status": {
-                                                    "type": "string",
-                                                    "example": "pending"
-                                                },
-                                                "total_amount": {
-                                                    "type": "number",
-                                                    "format": "float",
-                                                    "example": 12.3
-                                                },
-                                                "ingredient_ids": {
-                                                    "type": "array",
-                                                    "items": {
-                                                        "type": "integer"
-                                                    },
-                                                    "example": [
-                                                        1,
-                                                        2,
-                                                        5
-                                                    ]
-                                                }
-                                            },
-                                            "type": "object"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
+                        "description": "Order created"
                     },
                     "403": {
                         "description": "Only users can create orders"
                     },
                     "422": {
                         "description": "Validation error"
-                    }
-                },
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ]
-            }
-        },
-        "/api/users/{user}/orders": {
-            "get": {
-                "tags": [
-                    "Orders"
-                ],
-                "summary": "Admin: list orders for a specific user",
-                "operationId": "67cd8a0a0abaef35b98e80822e09a850",
-                "parameters": [
-                    {
-                        "name": "user",
-                        "in": "path",
-                        "description": "User ID",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "user": {
-                                            "properties": {
-                                                "id": {
-                                                    "type": "integer",
-                                                    "example": 3
-                                                },
-                                                "name": {
-                                                    "type": "string",
-                                                    "example": "Nikola Raičević"
-                                                },
-                                                "email": {
-                                                    "type": "string",
-                                                    "example": "nikola@example.com"
-                                                }
-                                            },
-                                            "type": "object"
-                                        },
-                                        "orders": {
-                                            "type": "array",
-                                            "items": {
-                                                "properties": {
-                                                    "id": {
-                                                        "type": "integer",
-                                                        "example": 15
-                                                    },
-                                                    "status": {
-                                                        "type": "string",
-                                                        "example": "paid"
-                                                    },
-                                                    "total_amount": {
-                                                        "type": "number",
-                                                        "format": "float",
-                                                        "example": 8.7
-                                                    },
-                                                    "ingredient_ids": {
-                                                        "type": "array",
-                                                        "items": {
-                                                            "type": "integer"
-                                                        },
-                                                        "example": [
-                                                            10,
-                                                            14
-                                                        ]
-                                                    }
-                                                },
-                                                "type": "object"
-                                            }
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "403": {
-                        "description": "Only admins can view user orders"
-                    },
-                    "404": {
-                        "description": "No orders found for this user."
-                    }
-                },
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ]
-            }
-        },
-        "/api/orders/from-recipes": {
-            "post": {
-                "tags": [
-                    "Orders"
-                ],
-                "summary": "Create an order from recipes, with include/exclude ingredients (user only)",
-                "operationId": "96e17b7b78996e61a039e528ae28dc2f",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "required": [
-                                    "recipe_ids"
-                                ],
-                                "properties": {
-                                    "recipe_ids": {
-                                        "type": "array",
-                                        "items": {
-                                            "type": "integer"
-                                        },
-                                        "example": [
-                                            1,
-                                            2
-                                        ]
-                                    },
-                                    "include_ingredient_ids": {
-                                        "type": "array",
-                                        "items": {
-                                            "type": "integer"
-                                        },
-                                        "example": [
-                                            19
-                                        ]
-                                    },
-                                    "exclude_ingredient_ids": {
-                                        "type": "array",
-                                        "items": {
-                                            "type": "integer"
-                                        },
-                                        "example": [
-                                            3
-                                        ]
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "201": {
-                        "description": "Order created from recipes",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Order created successfully from recipes"
-                                        },
-                                        "order": {
-                                            "properties": {
-                                                "id": {
-                                                    "type": "integer",
-                                                    "example": 23
-                                                },
-                                                "status": {
-                                                    "type": "string",
-                                                    "example": "pending"
-                                                },
-                                                "total_amount": {
-                                                    "type": "number",
-                                                    "format": "float",
-                                                    "example": 18.4
-                                                },
-                                                "ingredient_ids": {
-                                                    "type": "array",
-                                                    "items": {
-                                                        "type": "integer"
-                                                    },
-                                                    "example": [
-                                                        1,
-                                                        2,
-                                                        5,
-                                                        19
-                                                    ]
-                                                }
-                                            },
-                                            "type": "object"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "403": {
-                        "description": "Only users can create orders"
-                    },
-                    "422": {
-                        "description": "Selected recipes and modifiers resulted in an empty cart."
                     }
                 },
                 "security": [
@@ -1088,45 +710,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "order": {
-                                            "properties": {
-                                                "id": {
-                                                    "type": "integer",
-                                                    "example": 22
-                                                },
-                                                "status": {
-                                                    "type": "string",
-                                                    "example": "pending"
-                                                },
-                                                "total_amount": {
-                                                    "type": "number",
-                                                    "format": "float",
-                                                    "example": 12.3
-                                                },
-                                                "ingredient_ids": {
-                                                    "type": "array",
-                                                    "items": {
-                                                        "type": "integer"
-                                                    },
-                                                    "example": [
-                                                        1,
-                                                        2,
-                                                        5
-                                                    ]
-                                                }
-                                            },
-                                            "type": "object"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
+                        "description": "OK"
                     },
                     "403": {
                         "description": "Forbidden"
@@ -1142,7 +726,7 @@
                 "tags": [
                     "Orders"
                 ],
-                "summary": "Update an order (admin only)",
+                "summary": "Update an order status (admin only)",
                 "operationId": "9f326acfc8febad161872da8dc13508f",
                 "parameters": [
                     {
@@ -1179,49 +763,7 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "Order updated",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Order updated successfully"
-                                        },
-                                        "order": {
-                                            "properties": {
-                                                "id": {
-                                                    "type": "integer",
-                                                    "example": 22
-                                                },
-                                                "status": {
-                                                    "type": "string",
-                                                    "example": "paid"
-                                                },
-                                                "total_amount": {
-                                                    "type": "number",
-                                                    "format": "float",
-                                                    "example": 12.3
-                                                },
-                                                "ingredient_ids": {
-                                                    "type": "array",
-                                                    "items": {
-                                                        "type": "integer"
-                                                    },
-                                                    "example": [
-                                                        1,
-                                                        2,
-                                                        5
-                                                    ]
-                                                }
-                                            },
-                                            "type": "object"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
+                        "description": "Order updated"
                     },
                     "403": {
                         "description": "Only admins can update orders"
@@ -1237,45 +779,347 @@
                 ]
             }
         },
+        "/api/users/{user}/orders": {
+            "get": {
+                "tags": [
+                    "Orders"
+                ],
+                "summary": "Admin: list orders for a specific user",
+                "operationId": "67cd8a0a0abaef35b98e80822e09a850",
+                "parameters": [
+                    {
+                        "name": "user",
+                        "in": "path",
+                        "description": "User ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "403": {
+                        "description": "Only admins can view user orders"
+                    },
+                    "404": {
+                        "description": "No orders found for this user."
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/orders/from-recipes": {
+            "post": {
+                "tags": [
+                    "Orders"
+                ],
+                "summary": "Create an order from recipes with include/exclude products (user only)",
+                "operationId": "96e17b7b78996e61a039e528ae28dc2f",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "recipe_ids"
+                                ],
+                                "properties": {
+                                    "recipe_ids": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "integer"
+                                        },
+                                        "example": [
+                                            1,
+                                            2
+                                        ]
+                                    },
+                                    "include_product_ids": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "integer"
+                                        },
+                                        "example": [
+                                            19
+                                        ]
+                                    },
+                                    "exclude_product_ids": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "integer"
+                                        },
+                                        "example": [
+                                            3
+                                        ]
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Order created from recipes"
+                    },
+                    "403": {
+                        "description": "Only users can create orders"
+                    },
+                    "422": {
+                        "description": "Selected recipes and modifiers resulted in an empty cart."
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/products": {
+            "get": {
+                "tags": [
+                    "Products"
+                ],
+                "summary": "List all products",
+                "operationId": "1bfaa78d1c2c3848ab8165c5dadcad3e",
+                "parameters": [
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "description": "Search by product name",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "404": {
+                        "description": "No products found."
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Products"
+                ],
+                "summary": "Create a product (admin only)",
+                "operationId": "e8185e307706e2cd84bbcf5171e2f09d",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "price"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Olive Oil"
+                                    },
+                                    "description": {
+                                        "type": "string",
+                                        "example": "Extra virgin olive oil 1L"
+                                    },
+                                    "price": {
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 5.5
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Product created"
+                    },
+                    "403": {
+                        "description": "Only admins can create products"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/products/{product}": {
+            "get": {
+                "tags": [
+                    "Products"
+                ],
+                "summary": "Get a single product",
+                "operationId": "05f6ffcb49f47b4f4fc1a1c21ed60011",
+                "parameters": [
+                    {
+                        "name": "product",
+                        "in": "path",
+                        "description": "Product ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "404": {
+                        "description": "Product not found"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Products"
+                ],
+                "summary": "Update a product (admin only)",
+                "operationId": "c474d1318e5b8c3de1f4d52b6053111f",
+                "parameters": [
+                    {
+                        "name": "product",
+                        "in": "path",
+                        "description": "Product ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Greek Olive Oil"
+                                    },
+                                    "description": {
+                                        "type": "string",
+                                        "example": "Extra virgin olive oil 1L"
+                                    },
+                                    "price": {
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 5.99
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Product updated"
+                    },
+                    "403": {
+                        "description": "Only admins can update products"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+                },
+            "delete": {
+                "tags": [
+                    "Products"
+                ],
+                "summary": "Delete a product (admin only)",
+                "operationId": "1a0a353d0842ff4f9347bb66ec53e3ea",
+                "parameters": [
+                    {
+                        "name": "product",
+                        "in": "path",
+                        "description": "Product ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Product deleted"
+                    },
+                    "403": {
+                        "description": "Only admins can delete products"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/api/recipes": {
             "get": {
                 "tags": [
                     "Recipes"
                 ],
-                "summary": "List recipes (with search, filters, sort, pagination)",
+                "summary": "List recipes (search, product filters, sort, pagination)",
                 "operationId": "8b9e556d4d747bd60232961951494bfb",
                 "parameters": [
                     {
                         "name": "search",
                         "in": "query",
-                        "description": "Search in name, description and ingredient names",
+                        "description": "Search in recipe name/description and product names",
                         "required": false,
                         "schema": {
                             "type": "string"
                         }
                     },
                     {
-                        "name": "ingredients_any",
+                        "name": "products_any",
                         "in": "query",
-                        "description": "CSV of ingredient IDs; recipe must contain ANY of them",
+                        "description": "CSV of product IDs; recipe must contain ANY of them",
                         "required": false,
                         "schema": {
                             "type": "string"
                         }
                     },
                     {
-                        "name": "ingredients_all",
+                        "name": "products_all",
                         "in": "query",
-                        "description": "CSV of ingredient IDs; recipe must contain ALL of them",
+                        "description": "CSV of product IDs; recipe must contain ALL of them",
                         "required": false,
                         "schema": {
                             "type": "string"
                         }
                     },
                     {
-                        "name": "ingredients_exclude",
+                        "name": "products_exclude",
                         "in": "query",
-                        "description": "CSV of ingredient IDs to exclude",
+                        "description": "CSV of product IDs to exclude",
                         "required": false,
                         "schema": {
                             "type": "string"
@@ -1324,90 +1168,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "meta": {
-                                            "properties": {
-                                                "page": {
-                                                    "type": "integer",
-                                                    "example": 1
-                                                },
-                                                "per_page": {
-                                                    "type": "integer",
-                                                    "example": 15
-                                                },
-                                                "total": {
-                                                    "type": "integer",
-                                                    "example": 42
-                                                },
-                                                "last_page": {
-                                                    "type": "integer",
-                                                    "example": 3
-                                                }
-                                            },
-                                            "type": "object"
-                                        },
-                                        "recipes": {
-                                            "type": "array",
-                                            "items": {
-                                                "properties": {
-                                                    "id": {
-                                                        "type": "integer",
-                                                        "example": 7
-                                                    },
-                                                    "name": {
-                                                        "type": "string",
-                                                        "example": "Greek Salad"
-                                                    },
-                                                    "description": {
-                                                        "type": "string",
-                                                        "example": "Fresh and easy."
-                                                    },
-                                                    "ingredient_ids": {
-                                                        "type": "array",
-                                                        "items": {
-                                                            "type": "integer"
-                                                        },
-                                                        "example": [
-                                                            1,
-                                                            2,
-                                                            3,
-                                                            5
-                                                        ]
-                                                    },
-                                                    "ingredients": {
-                                                        "type": "array",
-                                                        "items": {
-                                                            "properties": {
-                                                                "id": {
-                                                                    "type": "integer",
-                                                                    "example": 1
-                                                                },
-                                                                "name": {
-                                                                    "type": "string",
-                                                                    "example": "Tomato"
-                                                                },
-                                                                "price": {
-                                                                    "type": "number",
-                                                                    "format": "float",
-                                                                    "example": 1.2
-                                                                }
-                                                            },
-                                                            "type": "object"
-                                                        }
-                                                    }
-                                                },
-                                                "type": "object"
-                                            }
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
+                        "description": "OK"
                     },
                     "404": {
                         "description": "No recipes found."
@@ -1427,7 +1188,7 @@
                             "schema": {
                                 "required": [
                                     "name",
-                                    "ingredient_ids"
+                                    "ingredients"
                                 ],
                                 "properties": {
                                     "name": {
@@ -1439,17 +1200,26 @@
                                         "type": "string",
                                         "example": "Fresh and easy."
                                     },
-                                    "ingredient_ids": {
+                                    "ingredients": {
                                         "type": "array",
                                         "items": {
-                                            "type": "integer"
-                                        },
-                                        "example": [
-                                            1,
-                                            2,
-                                            3,
-                                            5
-                                        ]
+                                            "required": [
+                                                "product_id",
+                                                "quantity"
+                                            ],
+                                            "properties": {
+                                                "product_id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "quantity": {
+                                                    "type": "number",
+                                                    "format": "float",
+                                                    "example": 0.5
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
                                     }
                                 },
                                 "type": "object"
@@ -1459,49 +1229,7 @@
                 },
                 "responses": {
                     "201": {
-                        "description": "Recipe created",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Recipe created successfully"
-                                        },
-                                        "recipe": {
-                                            "properties": {
-                                                "id": {
-                                                    "type": "integer",
-                                                    "example": 12
-                                                },
-                                                "name": {
-                                                    "type": "string",
-                                                    "example": "Greek Salad"
-                                                },
-                                                "description": {
-                                                    "type": "string",
-                                                    "example": "Fresh and easy."
-                                                },
-                                                "ingredient_ids": {
-                                                    "type": "array",
-                                                    "items": {
-                                                        "type": "integer"
-                                                    },
-                                                    "example": [
-                                                        1,
-                                                        2,
-                                                        3,
-                                                        5
-                                                    ]
-                                                }
-                                            },
-                                            "type": "object"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
+                        "description": "Recipe created"
                     },
                     "403": {
                         "description": "Only admins can create recipes"
@@ -1515,68 +1243,6 @@
                         "bearerAuth": []
                     }
                 ]
-            }
-        },
-        "/api/recipes/{recipe}/ingredients": {
-            "get": {
-                "tags": [
-                    "Recipes"
-                ],
-                "summary": "Get the ingredients for a specific recipe",
-                "operationId": "52a68b3239e5581273eff80aeef5345d",
-                "parameters": [
-                    {
-                        "name": "recipe",
-                        "in": "path",
-                        "description": "Recipe ID",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "recipe_id": {
-                                            "type": "integer",
-                                            "example": 5
-                                        },
-                                        "ingredients": {
-                                            "type": "array",
-                                            "items": {
-                                                "properties": {
-                                                    "id": {
-                                                        "type": "integer",
-                                                        "example": 1
-                                                    },
-                                                    "name": {
-                                                        "type": "string",
-                                                        "example": "Tomato"
-                                                    },
-                                                    "price": {
-                                                        "type": "number",
-                                                        "format": "float",
-                                                        "example": 1.2
-                                                    }
-                                                },
-                                                "type": "object"
-                                            }
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "No ingredients found for this recipe."
-                    }
-                }
             }
         },
         "/api/recipes/{recipe}": {
@@ -1599,45 +1265,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "recipe": {
-                                            "properties": {
-                                                "id": {
-                                                    "type": "integer",
-                                                    "example": 7
-                                                },
-                                                "name": {
-                                                    "type": "string",
-                                                    "example": "Greek Salad"
-                                                },
-                                                "description": {
-                                                    "type": "string",
-                                                    "example": "Fresh and easy."
-                                                },
-                                                "ingredient_ids": {
-                                                    "type": "array",
-                                                    "items": {
-                                                        "type": "integer"
-                                                    },
-                                                    "example": [
-                                                        1,
-                                                        2,
-                                                        3,
-                                                        5
-                                                    ]
-                                                }
-                                            },
-                                            "type": "object"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
+                        "description": "OK"
                     },
                     "404": {
                         "description": "Recipe not found"
@@ -1676,18 +1304,27 @@
                                         "type": "string",
                                         "example": "With extra basil."
                                     },
-                                    "ingredient_ids": {
+                                    "ingredients": {
+                                        "description": "If provided, replaces all ingredients with this list",
                                         "type": "array",
                                         "items": {
-                                            "type": "integer"
-                                        },
-                                        "example": [
-                                            1,
-                                            2,
-                                            3,
-                                            5,
-                                            16
-                                        ]
+                                            "required": [
+                                                "product_id",
+                                                "quantity"
+                                            ],
+                                            "properties": {
+                                                "product_id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "quantity": {
+                                                    "type": "number",
+                                                    "format": "float",
+                                                    "example": 0.6
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
                                     }
                                 },
                                 "type": "object"
@@ -1697,50 +1334,7 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "Recipe updated",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Recipe updated successfully"
-                                        },
-                                        "recipe": {
-                                            "properties": {
-                                                "id": {
-                                                    "type": "integer",
-                                                    "example": 7
-                                                },
-                                                "name": {
-                                                    "type": "string",
-                                                    "example": "Summer Greek Salad"
-                                                },
-                                                "description": {
-                                                    "type": "string",
-                                                    "example": "With extra basil."
-                                                },
-                                                "ingredient_ids": {
-                                                    "type": "array",
-                                                    "items": {
-                                                        "type": "integer"
-                                                    },
-                                                    "example": [
-                                                        1,
-                                                        2,
-                                                        3,
-                                                        5,
-                                                        16
-                                                    ]
-                                                }
-                                            },
-                                            "type": "object"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
+                        "description": "Recipe updated"
                     },
                     "403": {
                         "description": "Only admins can update recipes"
@@ -1774,17 +1368,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Recipe deleted",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object"
-                                },
-                                "example": {
-                                    "message": "Recipe deleted successfully"
-                                }
-                            }
-                        }
+                        "description": "Recipe deleted"
                     },
                     "403": {
                         "description": "Only admins can delete recipes"
@@ -1823,6 +1407,10 @@
         {
             "name": "Orders",
             "description": "Orders"
+        },
+        {
+            "name": "Products",
+            "description": "Products"
         },
         {
             "name": "Recipes",

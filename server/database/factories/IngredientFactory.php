@@ -2,23 +2,24 @@
 
 namespace Database\Factories;
 
+use App\Models\Ingredient;
+use App\Models\Product;
+use App\Models\Recipe;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Ingredient>
+ * @extends Factory<Ingredient>
  */
 class IngredientFactory extends Factory
 {
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
+    protected $model = Ingredient::class;
+
     public function definition(): array
     {
         return [
-            'name'  => ucfirst($this->faker->unique()->words(rand(1, 2), true)),
-            'price' => $this->faker->randomFloat(2, 0.5, 20),
+            'recipe_id' => Recipe::factory(),
+            'product_id' => Product::factory(),
+            'quantity' => $this->faker->randomFloat(2, 0.1, 5),
         ];
     }
 }

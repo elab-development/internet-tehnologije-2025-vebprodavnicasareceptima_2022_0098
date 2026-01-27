@@ -23,9 +23,9 @@ class DatabaseSeeder extends Seeder
         User::factory(5)->create();
 
         $this->call([
-            IngredientSeeder::class,
+            ProductSeeder::class,
             RecipeSeeder::class,
-            OrderSeeder::class,
+            IngredientSeeder::class,
         ]);
     }
 }
