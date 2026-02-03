@@ -42,3 +42,9 @@ export function ingredientToCartProduct(ingredient) {
 export function ingredientQuantity(ingredient, fallback = 1) {
   return toNumber(ingredient?.quantity, fallback);
 }
+
+export function money(n) {
+  const x = Number(n);
+  const safe = Number.isFinite(x) ? x : 0;
+  return safe.toFixed(2);
+}
