@@ -29,3 +29,16 @@ export function toNumber(v, fallback = 0) {
   const n = Number(v);
   return Number.isFinite(n) ? n : fallback;
 }
+
+export function ingredientToCartProduct(ingredient) {
+  const p = ingredient?.product;
+  return {
+    id: p?.id ?? ingredient?.product_id,
+    name: p?.name ?? '',
+    price: toNumber(p?.price, 0),
+  };
+}
+
+export function ingredientQuantity(ingredient, fallback = 1) {
+  return toNumber(ingredient?.quantity, fallback);
+}

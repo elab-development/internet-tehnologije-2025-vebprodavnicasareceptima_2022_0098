@@ -129,7 +129,7 @@ export default function Navbar() {
                         <FiShoppingCart className='text-lg' />
                         <span className='hidden lg:inline'>Cart</span>
                         <span className='ml-1 inline-flex items-center justify-center min-w-[24px] h-6 px-2 rounded-full bg-orange-500 text-white text-xs shadow'>
-                          {cartCount}
+                          {cartCount.toFixed(2)}
                         </span>
                       </span>
                     </NavLink>
@@ -141,7 +141,7 @@ export default function Navbar() {
                           Cart preview
                         </span>
                         <span className='text-xs text-slate-500'>
-                          {cartCount} items
+                          {cartCount.toFixed(2)} items
                         </span>
                       </div>
 
@@ -337,7 +337,7 @@ export default function Navbar() {
                         <span>Cart</span>
                       </span>
                       <span className='min-w-[24px] h-6 px-2 rounded-full bg-orange-500 text-white text-xs flex items-center justify-center shadow'>
-                        {cartCount}
+                        {cartCount.toFixed(2)}
                       </span>
                     </NavLink>
 
