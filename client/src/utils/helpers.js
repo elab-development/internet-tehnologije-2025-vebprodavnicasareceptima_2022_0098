@@ -55,3 +55,12 @@ export function formatDateTime(iso) {
   if (Number.isNaN(d.getTime())) return String(iso);
   return d.toLocaleString();
 }
+
+export function statusBadgeClass(status = '') {
+  const s = String(status).toLowerCase();
+  if (s === 'paid') return 'bg-green-100 text-green-700';
+  if (s === 'fulfilled') return 'bg-green-100 text-green-700';
+  if (s === 'cancelled') return 'bg-orange-100 text-orange-700';
+  if (s === 'pending') return 'bg-orange-100 text-orange-700';
+  return 'bg-slate-100 text-slate-700';
+}
