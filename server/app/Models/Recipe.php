@@ -14,6 +14,10 @@ class Recipe extends Model
         'description'
     ];
 
+    protected $casts = [
+        'ingredient_ids' => 'array',
+    ];
+
     public function ingredients()
     {
         return $this->hasMany(Ingredient::class);

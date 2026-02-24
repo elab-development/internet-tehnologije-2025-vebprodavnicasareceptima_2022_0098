@@ -16,7 +16,8 @@ class Order extends Model
     ];
 
     protected $casts = [
-        'total_amount' => 'decimal:2'
+        'total_amount' => 'decimal:2',
+        'ingredient_ids' => 'array',
     ];
 
     public function user()

@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 /**
  * @OA\Info(
- *     title="API",
+ *     title="Recipes Web Shop API",
  *     version="1.0.0",
  *     description="API documentation for Recipes Web Shop."
  * )
@@ -13,7 +13,7 @@ namespace App\Http\Controllers;
  *     securityScheme="bearerAuth",
  *     type="http",
  *     scheme="bearer",
- *     bearerFormat="JWT"
+ *     bearerFormat="Sanctum"
  * )
  *
  * @OA\Server(

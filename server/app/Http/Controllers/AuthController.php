@@ -26,7 +26,7 @@ class AuthController extends Controller
      *     )
      *   ),
      *   @OA\Response(
-     *     response=200,
+     *     response=201,
      *     description="User created",
      *     @OA\JsonContent(
      *       type="object",
@@ -43,7 +43,10 @@ class AuthController extends Controller
      *   @OA\Response(
      *     response=422,
      *     description="Validation error",
-     *     @OA\JsonContent(type="object", example={"email":{"The email has already been taken."}})
+     *     @OA\JsonContent(
+     *       type="object",
+     *       example={"email":{"The email has already been taken."}}
+     *     )
      *   )
      * )
      */
@@ -56,7 +59,8 @@ class AuthController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json($validator->errors());
+            // bitno: sad je 422 da bude u skladu sa Swagger-om
+            return response()->json($validator->errors(), 422);
         }
 
         $user = User::create([
@@ -66,11 +70,12 @@ class AuthController extends Controller
         ]);
 
         $token = $user->createToken('auth_token')->plainTextToken;
+
         return response()->json([
             'data' => $user,
             'access_token' => $token,
             'token_type' => 'Bearer'
-        ]);
+        ], 201);
     }
 
     /**
@@ -111,7 +116,6 @@ class AuthController extends Controller
         }
 
         $user = User::where('email', $request['email'])->firstOrFail();
-
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
@@ -141,7 +145,11 @@ class AuthController extends Controller
      *       )
      *     )
      *   ),
-     *   @OA\Response(response=401, description="Unauthenticated")
+     *   @OA\Response(
+     *     response=401,
+     *     description="Unauthenticated",
+     *     @OA\JsonContent(type="object", example={"message":"Unauthenticated."})
+     *   )
      * )
      */
     public function me()
@@ -151,7 +159,6 @@ class AuthController extends Controller
         ]);
     }
 
-    
     /**
      * @OA\Post(
      *   path="/api/logout",
@@ -166,7 +173,8 @@ class AuthController extends Controller
      *   ),
      *   @OA\Response(
      *     response=401,
-     *     description="Unauthenticated"
+     *     description="Unauthenticated",
+     *     @OA\JsonContent(type="object", example={"message":"Unauthenticated."})
      *   )
      * )
      */

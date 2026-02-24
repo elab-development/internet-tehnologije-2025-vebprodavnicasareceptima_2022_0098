@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('recipes', function (Blueprint $table) {
-            $table->json('ingredient_ids')->default('[]');
+            $table->json('ingredient_ids')->nullable()->after('id');
         });
     }
 

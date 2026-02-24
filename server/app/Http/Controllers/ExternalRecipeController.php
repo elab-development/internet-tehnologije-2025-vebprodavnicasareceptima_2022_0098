@@ -43,7 +43,7 @@ class ExternalRecipeController extends Controller
      *           @OA\Property(property="title", type="string", example="Greek Salad"),
      *           @OA\Property(property="image", type="string", example="https://.../thumb.jpg"),
      *           @OA\Property(property="source", type="string", example="mealdb"),
-     *           @OA\Property(property="source_url", type="string", example="https://..."),
+     *           @OA\Property(property="source_url", type="string", example="https://...", nullable=true),
      *           @OA\Property(property="category", type="string", example="Salad", nullable=true),
      *           @OA\Property(property="area", type="string", example="Greek", nullable=true),
      *           @OA\Property(property="instructions", type="string", example="Chop vegetables...", nullable=true),
@@ -55,7 +55,19 @@ class ExternalRecipeController extends Controller
      *       )
      *     )
      *   ),
-     *   @OA\Response(response=404, description="No recipes found from selected sources.")
+     *   @OA\Response(
+     *     response=404,
+     *     description="No recipes found from selected sources.",
+     *     @OA\JsonContent(type="string", example="No recipes found from selected sources.")
+     *   ),
+     *   @OA\Response(
+     *     response=422,
+     *     description="Validation error",
+     *     @OA\JsonContent(
+     *       type="object",
+     *       example={"message":"The q field is required.","errors":{"q":{"The q field is required."}}}
+     *     )
+     *   )
      * )
      */
     public function search(Request $request)
