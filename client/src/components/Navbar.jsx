@@ -1,6 +1,6 @@
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { useMemo, useState } from 'react';
-import { FiMenu, FiX, FiShoppingCart } from 'react-icons/fi';
+import { FiMenu, FiX, FiShoppingCart, FiGrid } from 'react-icons/fi';
 
 import { useAuthStore } from '../stores/useAuthStore';
 import { useCartStore } from '../stores/useCartStore';
@@ -14,6 +14,8 @@ export default function Navbar() {
   const logout = useAuthStore((s) => s.logout);
 
   const items = useCartStore((s) => s.items);
+
+  const isAdmin = user?.role === 'admin';
 
   const cartCount = useMemo(() => {
     return items.reduce((sum, it) => sum + Number(it.quantity || 0), 0);
@@ -37,7 +39,6 @@ export default function Navbar() {
       <div className='backdrop-blur bg-white/70 shadow-md'>
         <div className='max-w-6xl mx-auto px-4'>
           <div className='h-16 flex items-center justify-between'>
-            {/* LEFT */}
             <div className='flex items-center gap-3'>
               <Link
                 to='/'
@@ -47,7 +48,6 @@ export default function Navbar() {
               </Link>
             </div>
 
-            {/* DESKTOP RIGHT */}
             <nav className='hidden md:flex items-center gap-2'>
               {!user ? (
                 <>
@@ -113,81 +113,99 @@ export default function Navbar() {
                     Profile
                   </NavLink>
 
-                  {/* Cart */}
-                  <div className='relative group'>
+                  {isAdmin && (
                     <NavLink
-                      to='/cart'
+                      to='/admin'
                       className={({ isActive }) =>
                         classNames(
                           linkBase,
-                          'bg-white/80 hover:bg-white shadow-md',
-                          isActive ? 'text-green-700' : 'text-slate-800',
+                          isActive
+                            ? 'bg-white text-orange-600 shadow-md'
+                            : 'text-slate-700 hover:bg-white/70 hover:text-orange-600',
                         )
                       }
                     >
                       <span className='inline-flex items-center gap-2'>
-                        <FiShoppingCart className='text-lg' />
-                        <span className='hidden lg:inline'>Cart</span>
-                        <span className='ml-1 inline-flex items-center justify-center min-w-[24px] h-6 px-2 rounded-full bg-orange-500 text-white text-xs shadow'>
-                          {cartCount.toFixed(2)}
-                        </span>
+                        <FiGrid />
+                        <span>Dashboard</span>
                       </span>
                     </NavLink>
+                    )}
 
-                    {/* Preview popover */}
-                    <div className='hidden group-hover:block absolute right-0 mt-2 w-72 rounded-2xl bg-white shadow-xl p-3'>
-                      <div className='flex items-center justify-between mb-2'>
-                        <span className='text-sm font-semibold text-slate-800'>
-                          Cart preview
+                    {!isAdmin && (
+                    <div className='relative group'>
+                      <NavLink
+                        to='/cart'
+                        className={({ isActive }) =>
+                          classNames(
+                            linkBase,
+                            'bg-white/80 hover:bg-white shadow-md',
+                            isActive ? 'text-green-700' : 'text-slate-800',
+                          )
+                        }
+                      >
+                        <span className='inline-flex items-center gap-2'>
+                          <FiShoppingCart className='text-lg' />
+                          <span className='hidden lg:inline'>Cart</span>
+                          <span className='ml-1 inline-flex items-center justify-center min-w-[24px] h-6 px-2 rounded-full bg-orange-500 text-white text-xs shadow'>
+                            {cartCount.toFixed(2)}
+                          </span>
                         </span>
-                        <span className='text-xs text-slate-500'>
-                          {cartCount.toFixed(2)} items
-                        </span>
-                      </div>
+                        </NavLink>
 
-                      {items.length === 0 ? (
-                        <div className='text-sm text-slate-600 py-3'>
-                          Korpa je prazna.
+                      <div className='hidden group-hover:block absolute right-0 mt-2 w-72 rounded-2xl bg-white shadow-xl p-3'>
+                        <div className='flex items-center justify-between mb-2'>
+                          <span className='text-sm font-semibold text-slate-800'>
+                            Cart preview
+                          </span>
+                          <span className='text-xs text-slate-500'>
+                            {cartCount.toFixed(2)} items
+                          </span>
                         </div>
-                      ) : (
-                        <div className='space-y-2'>
-                          {cartPreview.map((it) => (
-                            <div
-                              key={it.product_id}
-                              className='flex items-center justify-between rounded-xl bg-green-50/60 p-2'
-                            >
-                              <div className='min-w-0'>
-                                <p className='text-sm font-medium text-slate-800 truncate'>
-                                  {it.name}
-                                </p>
-                                <p className='text-xs text-slate-600'>
-                                  Qty: {it.quantity}
+                      
+                      {items.length === 0 ? (
+                          <div className='text-sm text-slate-600 py-3'>
+                            Korpa je prazna.
+                          </div>
+                        ) : (
+                          <div className='space-y-2'>
+                            {cartPreview.map((it) => (
+                              <div
+                                key={it.product_id}
+                                className='flex items-center justify-between rounded-xl bg-green-50/60 p-2'
+                              >
+                                <div className='min-w-0'>
+                                  <p className='text-sm font-medium text-slate-800 truncate'>
+                                    {it.name}
+                                  </p>
+                                  <p className='text-xs text-slate-600'>
+                                    Qty: {it.quantity}
+                                  </p>
+                                </div>
+
+                                <p className='text-sm font-semibold text-green-700'>
+                                  {Number(it.price || 0).toFixed(2)}
                                 </p>
                               </div>
+                              ))}
 
-                              {/* prikaz po komadu */}
-                              <p className='text-sm font-semibold text-green-700'>
-                                {Number(it.price || 0).toFixed(2)}
+                              {items.length > 4 && (
+                              <p className='text-xs text-slate-500'>
+                                + još {items.length - 4} item-a
                               </p>
-                            </div>
-                          ))}
+                            )}
 
-                          {items.length > 4 && (
-                            <p className='text-xs text-slate-500'>
-                              + još {items.length - 4} item-a
-                            </p>
-                          )}
-
-                          <Link
-                            to='/cart'
-                            className='block text-center mt-2 rounded-xl bg-gradient-to-r from-green-600 to-orange-500 text-white py-2 text-sm font-semibold shadow'
-                          >
-                            Open cart
-                          </Link>
-                        </div>
-                      )}
+                            <Link
+                              to='/cart'
+                              className='block text-center mt-2 rounded-xl bg-gradient-to-r from-green-600 to-orange-500 text-white py-2 text-sm font-semibold shadow'
+                            >
+                              Open cart
+                            </Link>
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  </div>
+                  )}
 
                   <button
                     onClick={onLogout}
@@ -211,7 +229,6 @@ export default function Navbar() {
               )}
             </nav>
 
-            {/* MOBILE BUTTON */}
             <button
               onClick={() => setOpen((v) => !v)}
               className='md:hidden rounded-2xl bg-white/80 shadow-md px-3 py-2 text-slate-800'
@@ -225,7 +242,6 @@ export default function Navbar() {
             </button>
           </div>
 
-          {/* MOBILE MENU */}
           {open && (
             <div className='md:hidden pb-4'>
               <div className='rounded-2xl bg-white/80 shadow-lg p-3 space-y-2'>
@@ -320,26 +336,45 @@ export default function Navbar() {
                       Profile
                     </NavLink>
 
-                    <NavLink
-                      to='/cart'
-                      onClick={() => setOpen(false)}
-                      className={({ isActive }) =>
-                        classNames(
-                          'flex items-center justify-between px-3 py-2 rounded-xl shadow-sm',
-                          isActive
-                            ? 'bg-white text-green-700'
-                            : 'bg-white/70 text-slate-700',
-                        )
-                      }
-                    >
-                      <span className='flex items-center gap-2'>
-                        <FiShoppingCart />
-                        <span>Cart</span>
-                      </span>
-                      <span className='min-w-[24px] h-6 px-2 rounded-full bg-orange-500 text-white text-xs flex items-center justify-center shadow'>
-                        {cartCount.toFixed(2)}
-                      </span>
-                    </NavLink>
+                    {isAdmin && (
+                      <NavLink
+                        to='/admin'
+                        onClick={() => setOpen(false)}
+                        className={({ isActive }) =>
+                          classNames(
+                            'block px-3 py-2 rounded-xl shadow-sm',
+                            isActive
+                              ? 'bg-orange-50 text-orange-700'
+                              : 'bg-white/70 text-slate-700',
+                          )
+                        }
+                      >
+                        Dashboard
+                      </NavLink>
+                    )}
+
+                    {!isAdmin && (
+                      <NavLink
+                        to='/cart'
+                        onClick={() => setOpen(false)}
+                        className={({ isActive }) =>
+                          classNames(
+                            'flex items-center justify-between px-3 py-2 rounded-xl shadow-sm',
+                            isActive
+                              ? 'bg-white text-green-700'
+                              : 'bg-white/70 text-slate-700',
+                          )
+                        }
+                      >
+                        <span className='flex items-center gap-2'>
+                          <FiShoppingCart />
+                          <span>Cart</span>
+                        </span>
+                        <span className='min-w-[24px] h-6 px-2 rounded-full bg-orange-500 text-white text-xs flex items-center justify-center shadow'>
+                          {cartCount.toFixed(2)}
+                        </span>
+                      </NavLink>
+                    )}
 
                     <button
                       onClick={onLogout}

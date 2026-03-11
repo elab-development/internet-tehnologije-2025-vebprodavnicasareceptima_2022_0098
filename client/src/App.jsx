@@ -4,6 +4,7 @@ import AppLayout from './layouts/AppLayout';
 
 import RequireAuth from './routes/RequireAuth';
 import RequireGuest from './routes/RequireGuest';
+import RequireAdmin from './routes/RequireAdmin';
 
 import Home from './pages/Home';
 import Login from './pages/Login';
@@ -12,6 +13,7 @@ import Cart from './pages/Cart';
 import OrderDetails from './pages/OrderDetails';
 import RecipeDetails from './pages/RecipeDetails';
 import Profile from './pages/Profile';
+import AdminDashboard from './pages/AdminDashboard';
 
 function App() {
   return (
@@ -33,6 +35,11 @@ function App() {
             <Route path='/cart' element={<Cart />} />
             <Route path='/order/:orderId' element={<OrderDetails />} />
             <Route path='/profile' element={<Profile />} />
+          </Route>
+
+          {/* ADMIN ONLY */}
+          <Route element={<RequireAdmin />}>
+            <Route path='/admin' element={<AdminDashboard />} />
           </Route>
         </Route>
       </Routes>
